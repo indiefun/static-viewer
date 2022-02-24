@@ -41,7 +41,10 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "icon": "icon"
+        "icon": "icon",
+        "win32metadata": {
+          "requested-execution-level": "requireAdministrator"
+        }
       },
       "publishers": [
         {

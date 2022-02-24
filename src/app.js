@@ -24,20 +24,29 @@ function handleHook(os, cmd) {
     if (cmd === null) return false
     
     const spawn = require('child_process').spawn
-    const run = function(args, done) {
-        const updateExe = path.resolve(path.dirname(process.execPath), '..', 'Update.exe')
-        spawn(updateExe, args, {
-            detached: true
-        }).on('close', done)
+    const reg = function(args, done) {
+        spawn('REG', args, {detached: true}).on('close', done)
+    }
+    const update = function(args, done) {
+        const command = path.resolve(path.dirname(process.execPath), '..', 'Update.exe')
+        spawn(command, args, {detached: true}).on('close', done)
     }
     
     const target = path.basename(process.execPath)
     if (cmd === '--squirrel-install' || cmd === '--squirrel-updated') {
-        run(['--createShortcut=' + target + ''], app.quit)
+        reg(['ADD', 'HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer', '/ve', '/t', 'REG_SZ', '/d', 'Serve with StaticViewer'], () => {
+            reg(['ADD', 'HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer', '/v', 'Icon', '/t', 'REG_SZ', '/d', process.execPath], () => {
+                reg(['ADD', 'HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer\\command', '/ve', '/t', 'REG_SZ', '/d', `"${process.execPath}" "%1"`], () => {
+                    update(['--createShortcut=' + target + ''], app.quit)
+                })
+            })
+        })
         return true
     }
     if (cmd === '--squirrel-uninstall') {
-        run(['--removeShortcut=' + target + ''], app.quit)
+        reg(['DELETE', 'HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer'], () => {
+            update(['--removeShortcut=' + target + ''], app.quit)
+        })
         return true
     }
     if (cmd === '--squirrel-obsolete' || cmd === '--squirrel-firstrun') {
