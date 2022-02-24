@@ -53,7 +53,7 @@ function handleHook(os, cmd) {
         })
         return true
     }
-    if (cmd === '--squirrel-obsolete' || cmd === '--squirrel-firstrun') {
+    if (cmd === '--squirrel-obsolete') {
         app.quit()
         return true
     }
@@ -64,6 +64,7 @@ app.whenReady().then(() => {
     const [cmd, dir] = parseArgv(process.argv)
     const os = process.platform
     if (handleHook(os, cmd)) return
+    if (!dir) return app.quit()
     
     const folder = dir ? dir : __dirname
     const port = 50000 + Math.floor(Math.random() * 10000)
