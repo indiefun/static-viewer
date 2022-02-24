@@ -23,9 +23,9 @@ function handleHook(os, cmd) {
     if (os !== 'win32') return false
     if (cmd === null) return false
     
-    const spawn = require('child_process').spawn
+    const {exec, spawn} = require('child_process')
     const reg = function(args, done) {
-        spawn('REG', args, {detached: true}).on('close', done)
+        exec(`REG ${args.join(' ')}`, {shell: true}, done)
     }
     const update = function(args, done) {
         const command = path.resolve(path.dirname(process.execPath), '..', 'Update.exe')
@@ -34,9 +34,9 @@ function handleHook(os, cmd) {
     
     const target = path.basename(process.execPath)
     if (cmd === '--squirrel-install' || cmd === '--squirrel-updated') {
-        reg(['ADD', 'HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer', '/ve', '/t', 'REG_SZ', '/d', 'Serve with StaticViewer'], () => {
-            reg(['ADD', 'HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer', '/v', 'Icon', '/t', 'REG_SZ', '/d', process.execPath], () => {
-                reg(['ADD', 'HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer\\command', '/ve', '/t', 'REG_SZ', '/d', `"${process.execPath}" "%1"`], () => {
+        reg(['ADD', `'HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer'`, '/ve', '/t', 'REG_SZ', '/d', `'Serve with StaticViewer'`, '/f'], () => {
+            reg(['ADD', `'HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer'`, '/v', 'Icon', '/t', 'REG_SZ', '/d', `'${process.execPath}'`, '/f'], () => {
+                reg(['ADD', `'HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer\\command'`, '/ve', '/t', 'REG_SZ', '/d', `\\"${process.execPath}\\" \\"%1\\"`, '/f'], () => {
                     update(['--createShortcut=' + target + ''], app.quit)
                 })
             })
@@ -44,7 +44,7 @@ function handleHook(os, cmd) {
         return true
     }
     if (cmd === '--squirrel-uninstall') {
-        reg(['DELETE', 'HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer'], () => {
+        reg(['DELETE', `'HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer'`, '/f'], () => {
             update(['--removeShortcut=' + target + ''], app.quit)
         })
         return true
