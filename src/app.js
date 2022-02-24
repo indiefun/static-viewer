@@ -7,7 +7,7 @@ function parseArgv(argv) {
     const _ = argv.shift()
     let cmd = null
     let dir = null
-    const unknown = [];
+    const unknown = []
     for (let arg of argv) {
         if (arg.startsWith('--squirrel')) cmd = arg
         else if (arg.startsWith('--') || arg.startsWith('-')) unknown.push(arg)
@@ -29,22 +29,22 @@ function handleHook(os, cmd) {
         spawn(updateExe, args, {
             detached: true
         }).on('close', done)
-    };
+    }
     
     const target = path.basename(process.execPath)
     if (cmd === '--squirrel-install' || cmd === '--squirrel-updated') {
-        run(['--createShortcut=' + target + ''], app.quit);
-        return true;
+        run(['--createShortcut=' + target + ''], app.quit)
+        return true
     }
     if (cmd === '--squirrel-uninstall') {
-        run(['--removeShortcut=' + target + ''], app.quit);
-        return true;
+        run(['--removeShortcut=' + target + ''], app.quit)
+        return true
     }
-    if (cmd === '--squirrel-obsolete') {
-        app.quit();
-        return true;
+    if (cmd === '--squirrel-obsolete' || cmd === '--squirrel-firstrun') {
+        app.quit()
+        return true
     }
-    return false;
+    return false
 }
 
 app.whenReady().then(() => {
@@ -59,7 +59,7 @@ app.whenReady().then(() => {
             console.error(err)
             app.quit()
         }
-        console.log(`folder ${folder} started on ${port}`);
+        console.log(`folder ${folder} started on ${port}`)
         
         const addr = server.address()
         const icon = nativeImage.createFromPath(path.resolve(__dirname, 'icon.png'))
