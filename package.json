@@ -31,7 +31,8 @@
     "@electron-forge/maker-squirrel": "^6.0.0-beta.63",
     "@electron-forge/maker-zip": "^6.0.0-beta.63",
     "@electron-forge/publisher-github": "^6.0.0-beta.63",
-    "electron": "^17.0.1"
+    "electron": "^17.0.1",
+    "electron-icon-builder": "^2.0.1"
   },
   "dependencies": {
     "connect": "^3.7.0",
@@ -40,7 +41,9 @@
   },
   "config": {
     "forge": {
-      "packagerConfig": {},
+      "packagerConfig": {
+        "icon": "icon"
+      },
       "publishers": [
         {
           "name": "@electron-forge/publisher-github",
@@ -56,7 +59,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "static_viewer"
+            "name": "StaticViewer"
           }
         },
         {
