@@ -34,11 +34,11 @@ function handleHook(os, cmd) {
     
     const target = path.basename(process.execPath)
     if (cmd === '--squirrel-install' || cmd === '--squirrel-updated') {
-        reg(['ADD', `'HKLM\SOFTWARE\Classes\Directory\shell\StaticViewer'`, '/ve', '/t', 'REG_SZ', '/d', `'Serve with StaticViewer'`, '/f'], err => {
+        reg(['ADD', `"HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer"`, '/ve', '/t', 'REG_SZ', '/d', `"Serve with StaticViewer"`, '/f'], err => {
             if (err) console.error(err)
-            reg(['ADD', `'HKLM\SOFTWARE\Classes\Directory\shell\StaticViewer'`, '/v', 'Icon', '/t', 'REG_SZ', '/d', `'${process.execPath}'`, '/f'], err => {
+            reg(['ADD', `"HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer"`, '/v', 'Icon', '/t', 'REG_SZ', '/d', `"${process.execPath}"`, '/f'], err => {
                 if (err) console.error(err)
-                reg(['ADD', `'HKLM\SOFTWARE\Classes\Directory\shell\StaticViewer\command'`, '/ve', '/t', 'REG_SZ', '/d', `\"${process.execPath}\" \"%1\"`, '/f'], err => {
+                reg(['ADD', `"HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer\\command"`, '/ve', '/t', 'REG_SZ', '/d', `"\\\"${process.execPath}\\\" \\\"%1\\\""`, '/f'], err => {
                     if (err) console.error(err)
                     update(['--createShortcut=' + target + ''], app.quit)
                 })
@@ -47,13 +47,13 @@ function handleHook(os, cmd) {
         return true
     }
     if (cmd === '--squirrel-uninstall') {
-        reg(['DELETE', `'HKLM\SOFTWARE\Classes\Directory\shell\StaticViewer'`, '/f'], err => {
+        reg(['DELETE', `"HKLM\\SOFTWARE\\Classes\\Directory\\shell\\StaticViewer"`, '/f'], err => {
             if (err) console.error(err)
             update(['--removeShortcut=' + target + ''], app.quit)
         })
         return true
     }
-    if (cmd === '--squirrel-obsolete') {
+    if (cmd === '--squirrel-obsolete' || cmd === '--squirrel-firstrun') {
         app.quit()
         return true
     }
@@ -61,11 +61,9 @@ function handleHook(os, cmd) {
 }
 
 app.whenReady().then(() => {
-    const argv = [].concat(process.argv)
     const [cmd, dir] = parseArgv(process.argv)
     const os = process.platform
     if (handleHook(os, cmd)) return
-    // if (!dir) return app.quit()
     
     const folder = dir ? dir : __dirname
     const port = 50000 + Math.floor(Math.random() * 10000)
@@ -80,7 +78,6 @@ app.whenReady().then(() => {
         const icon = nativeImage.createFromPath(path.resolve(__dirname, 'icon.png'))
         const tray = new Tray(icon)
         const menu = Menu.buildFromTemplate([
-            { label: `${argv.join(' ')}`, type: 'normal', enabled: false },
             { label: `${folder}`, type: 'normal', enabled: false },
             { label: `${addr.family}://${addr.address}:${addr.port}`, type: 'normal', enabled: false },
             {
